@@ -49,9 +49,6 @@ jobs:
         cp -r node_modules release/
         cp -r client/dist release/client-dist
         cp -r server/dist release/server-dist
-        mkdir -p release/server/data release/server/uploads
-        touch release/server/data/.gitkeep
-        touch release/server/uploads/.gitkeep
         cp package.json release/
         cp start.bat release/ 2>/dev/null || true
         cp start.sh release/ 2>/dev/null || true
@@ -66,8 +63,10 @@ jobs:
         cp server/package.json release/server/
         cp server/tsconfig.json release/server/ 2>/dev/null || true
         mv release/server-dist release/server/dist
-        mv release/server/data release/server/data
-        mv release/server/uploads release/server/uploads
+        
+        mkdir -p release/server/data release/server/uploads
+        touch release/server/data/.gitkeep
+        touch release/server/uploads/.gitkeep
         
         mkdir -p release/client
         cp client/package.json release/client/
@@ -96,7 +95,7 @@ jobs:
         ### Quick Start
         
         1. Download and extract
-        2. Install Node.js >= 18.x (supports 18.x / 20.x / 22.x / 24.x)
+        2. Install Node.js >= 18.x (supports 18.x and above, tested on 18.x & 24.x)
         3. Run start script (start.bat or start.sh)
         4. Visit http://localhost:4000
         
@@ -116,7 +115,7 @@ jobs:
         
         - Commit: ${GITHUB_SHA::7}
         - Build Date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
-        - Tested on Node.js: 18.x, 20.x, 22.x, 24.x
+        - Tested on Node.js: 18.x, 24.x
         EOF
     
     - name: Create tag and release

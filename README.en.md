@@ -46,10 +46,11 @@ A million-row CSV data viewer system based on React + Express, supporting offlin
 ## 🚀 Quick Start
 
 ### System Requirements
-- Node.js >= 18.x (Supports 18.x / 20.x / 22.x / 24.x and all versions above 18)
+- Node.js >= 18.x (Supports 18.x and above)
 - npm >= 8.x
 
-> 💡 **Development Environment**: This project is developed with Node.js 24.x, backward compatible to Node.js 18.x
+> 💡 **Development Environment**: This project is developed with Node.js 24.x, backward compatible to Node.js 18.x  
+> 💡 **CI/CD Testing**: GitHub Actions automatically tests on Node.js 18.x and 24.x
 
 ### Development Environment
 

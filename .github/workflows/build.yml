@@ -12,7 +12,7 @@ jobs:
     
     strategy:
       matrix:
-        node-version: [18.x, 20.x, 22.x, 24.x]
+        node-version: [18.x, 24.x]
     
     steps:
     - name: Checkout code
@@ -55,7 +55,6 @@ jobs:
         cp -r node_modules release/
         cp -r client/dist release/client-dist
         cp -r server/dist release/server-dist
-        mkdir -p release/server/data release/server/uploads
         cp package.json release/
         cp README.md release/
         cp LICENSE release/
@@ -64,8 +63,10 @@ jobs:
         mkdir -p release/server
         cp server/package.json release/server/
         mv release/server-dist release/server/dist
-        mv release/server/data release/server/data
-        mv release/server/uploads release/server/uploads
+        
+        mkdir -p release/server/data release/server/uploads
+        touch release/server/data/.gitkeep
+        touch release/server/uploads/.gitkeep
         
         mkdir -p release/client
         cp client/package.json release/client/
