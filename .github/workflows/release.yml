@@ -1,0 +1,125 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm install
+    
+    - name: Build project
+      run: npm run build
+    
+    - name: Create deployment package
+      run: |
+        mkdir -p release
+        
+        # 复制必要文件
+        cp -r node_modules release/
+        cp -r client/dist release/client-dist
+        cp -r server/dist release/server-dist
+        cp -r server/data release/server-data
+        cp -r server/uploads release/server-uploads
+        cp package.json release/
+        cp start.bat release/
+        cp start.sh release/
+        cp README.md release/
+        cp LICENSE release/
+        cp .env.example release/
+        cp DEPLOYMENT-OFFLINE.md release/
+        
+        # 创建server目录结构
+        mkdir -p release/server
+        cp server/package.json release/server/
+        cp server/tsconfig.json release/server/
+        mv release/server-dist release/server/dist
+        mv release/server-data release/server/data
+        mv release/server-uploads release/server/uploads
+        
+        # 创建client目录结构
+        mkdir -p release/client
+        cp client/package.json release/client/
+        mv release/client-dist release/client/dist
+        
+        # 打包
+        cd release
+        tar -czf ../csvviewer-${GITHUB_REF_NAME}.tar.gz .
+        cd ..
+        zip -r csvviewer-${GITHUB_REF_NAME}.zip release/
+    
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: CSV Viewer ${{ github.ref_name }}
+        body: |
+          ## CSV Viewer ${{ github.ref_name }}
+          
+          ### 📦 下载
+          
+          选择适合您操作系统的安装包：
+          - **Windows/Linux**: `csvviewer-${{ github.ref_name }}.zip`
+          - **Linux/Mac**: `csvviewer-${{ github.ref_name }}.tar.gz`
+          
+          ### 🚀 快速开始
+          
+          1. 下载并解压
+          2. 确保已安装 Node.js >= 16.x
+          3. 运行启动脚本：
+             - Windows: `start.bat`
+             - Linux/Mac: `./start.sh`
+          4. 访问: http://localhost:4000
+          
+          ### ✨ 新功能
+          
+          请查看详细的更新日志。
+          
+          ### 📋 系统要求
+          
+          - Node.js >= 16.x
+          - 约 205MB 磁盘空间
+          
+          ### 📖 文档
+          
+          - [README.md](README.md) - 完整文档
+          - [DEPLOYMENT-OFFLINE.md](DEPLOYMENT-OFFLINE.md) - 内网部署指南
+        draft: false
+        prerelease: false
+    
+    - name: Upload ZIP Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./csvviewer-${{ github.ref_name }}.zip
+        asset_name: csvviewer-${{ github.ref_name }}.zip
+        asset_content_type: application/zip
+    
+    - name: Upload TAR.GZ Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./csvviewer-${{ github.ref_name }}.tar.gz
+        asset_name: csvviewer-${{ github.ref_name }}.tar.gz
+        asset_content_type: application/gzip

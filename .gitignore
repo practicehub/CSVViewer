@@ -1,0 +1,100 @@
+# 依赖目录
+node_modules/
+*/node_modules/
+
+# 构建产物
+dist/
+build/
+*.tsbuildinfo
+
+# 环境变量
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+server/.env
+server/.env.local
+server/.env.production
+
+# 数据库文件
+*.db
+*.sqlite
+*.sqlite3
+server/data/*.db
+server/data/*.sqlite
+
+# 上传文件
+server/uploads/*
+!server/uploads/.gitkeep
+
+# 日志
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+pnpm-debug.log*
+
+# 操作系统
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# 测试覆盖率
+coverage/
+*.lcov
+.nyc_output/
+
+# 缓存
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+
+# 临时文件
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# 打包文件
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# 备份文件
+*.bak
+*.backup
+*~
+
+# 其他
+.next/
+out/
+.nuxt/
+.vuepress/dist
+.serverless/

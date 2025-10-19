@@ -1,0 +1,48 @@
+# 自动检测文本文件并规范换行符
+* text=auto
+
+# 源代码文件强制使用LF
+*.ts text eol=lf
+*.tsx text eol=lf
+*.js text eol=lf
+*.jsx text eol=lf
+*.json text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.html text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Shell脚本使用LF
+*.sh text eol=lf
+
+# Windows批处理文件使用CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# 二进制文件
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tar binary
+*.gz binary
+*.db binary
+*.sqlite binary
+*.sqlite3 binary
+
+# 字体文件
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+
+# 文档
+*.doc binary
+*.docx binary
+*.xls binary
+*.xlsx binary
