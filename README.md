@@ -1,5 +1,7 @@
 # CSV Viewer
 
+[English](README.en.md) | [日本語](README.ja.md) | 简体中文
+
 基于 React + Express 的百万行 CSV 数据查看系统，支持内网离线部署。
 
 ## 🎯 功能特点
