@@ -1,0 +1,142 @@
+name: Auto Publish
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '24.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm install
+    
+    - name: Build project
+      run: npm run build
+    
+    - name: Get version
+      id: package-version
+      run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+    
+    - name: Check if tag exists
+      id: check-tag
+      run: |
+        if git rev-parse "v${{ steps.package-version.outputs.version }}" >/dev/null 2>&1; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Create deployment package
+      if: steps.check-tag.outputs.exists == 'false'
+      run: |
+        mkdir -p release
+        
+        cp -r node_modules release/
+        cp -r client/dist release/client-dist
+        cp -r server/dist release/server-dist
+        mkdir -p release/server/data release/server/uploads
+        touch release/server/data/.gitkeep
+        touch release/server/uploads/.gitkeep
+        cp package.json release/
+        cp start.bat release/ 2>/dev/null || true
+        cp start.sh release/ 2>/dev/null || true
+        cp README.md release/
+        cp README.en.md release/ 2>/dev/null || true
+        cp README.ja.md release/ 2>/dev/null || true
+        cp LICENSE release/
+        cp .env.example release/
+        cp DEPLOYMENT-OFFLINE.md release/ 2>/dev/null || true
+        
+        mkdir -p release/server
+        cp server/package.json release/server/
+        cp server/tsconfig.json release/server/ 2>/dev/null || true
+        mv release/server-dist release/server/dist
+        mv release/server/data release/server/data
+        mv release/server/uploads release/server/uploads
+        
+        mkdir -p release/client
+        cp client/package.json release/client/
+        mv release/client-dist release/client/dist
+        
+        echo "CSV Viewer v${{ steps.package-version.outputs.version }}" > release/VERSION.txt
+        echo "Build Date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> release/VERSION.txt
+        echo "Commit: ${GITHUB_SHA::7}" >> release/VERSION.txt
+        
+        cd release
+        tar -czf ../csvviewer-v${{ steps.package-version.outputs.version }}.tar.gz .
+        cd ..
+        zip -r csvviewer-v${{ steps.package-version.outputs.version }}.zip release/
+    
+    - name: Create Release Notes
+      if: steps.check-tag.outputs.exists == 'false'
+      run: |
+        cat > RELEASE_NOTES.md << 'EOF'
+        ## CSV Viewer v${{ steps.package-version.outputs.version }}
+        
+        ### Download
+        
+        - Windows/Linux: csvviewer-v${{ steps.package-version.outputs.version }}.zip
+        - Linux/Mac: csvviewer-v${{ steps.package-version.outputs.version }}.tar.gz
+        
+        ### Quick Start
+        
+        1. Download and extract
+        2. Install Node.js >= 18.x (supports 18.x / 20.x / 22.x / 24.x)
+        3. Run start script (start.bat or start.sh)
+        4. Visit http://localhost:4000
+        
+        ### System Requirements
+        
+        - Node.js >= 18.x (developed with 24.x)
+        - npm >= 8.x
+        - 205MB disk space
+        
+        ### Documentation
+        
+        - README.md - 中文
+        - README.en.md - English
+        - README.ja.md - 日本語
+        
+        ### Build Info
+        
+        - Commit: ${GITHUB_SHA::7}
+        - Build Date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+        - Tested on Node.js: 18.x, 20.x, 22.x, 24.x
+        EOF
+    
+    - name: Create tag and release
+      if: steps.check-tag.outputs.exists == 'false'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        
+        git tag -a "v${{ steps.package-version.outputs.version }}" -m "Auto release v${{ steps.package-version.outputs.version }}"
+        git push origin "v${{ steps.package-version.outputs.version }}"
+        
+        gh release create "v${{ steps.package-version.outputs.version }}" \
+          --title "CSV Viewer v${{ steps.package-version.outputs.version }}" \
+          --notes-file RELEASE_NOTES.md \
+          csvviewer-v${{ steps.package-version.outputs.version }}.zip \
+          csvviewer-v${{ steps.package-version.outputs.version }}.tar.gz
+    
+    - name: Skip message
+      if: steps.check-tag.outputs.exists == 'true'
+      run: |
+        echo "Tag v${{ steps.package-version.outputs.version }} already exists, skipping release"
