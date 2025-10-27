@@ -4,6 +4,7 @@ import path from 'path';
 import db from './db';
 import authRouter from './routes/auth';
 import csvRouter from './routes/csv';
+import usersRouter from './routes/users';
 
 const app = express();
 const port = parseInt(process.env.PORT || '4000', 10);
@@ -24,6 +25,7 @@ async function startServer() {
     // 注册路由
     app.use('/api/auth', authRouter);
     app.use('/api/csv', csvRouter);
+    app.use('/api/users', usersRouter);
 
     // Serve frontend for all non-API routes
     app.get('*', (req, res) => {
