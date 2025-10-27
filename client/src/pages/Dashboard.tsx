@@ -15,8 +15,13 @@ import {
   Alert,
   CircularProgress,
   Checkbox,
+  Menu,
+  MenuItem,
+  IconButton,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import PeopleIcon from '@mui/icons-material/People';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 
@@ -36,6 +41,7 @@ const Dashboard: React.FC = () => {
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
 
   const fetchFiles = async () => {
@@ -125,9 +131,68 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const handleSingleDelete = async (fileId: number, fileName: string) => {
+    if (!window.confirm(`确定要删除文件 "${fileName}" 吗？`)) {
+      return;
+    }
+
+    setDeleting(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      await axios.delete(`/api/csv/${fileId}`);
+      setSuccess(`成功删除文件 "${fileName}"`);
+      fetchFiles();
+    } catch (err: any) {
+      setError(err.response?.data?.message || '删除失败');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleProfile = () => {
+    handleMenuClose();
+    navigate('/profile');
+  };
+
+  const handleUserManagement = () => {
+    handleMenuClose();
+    navigate('/user-management');
+  };
+
   const handleLogout = () => {
+    handleMenuClose();
     logout();
     navigate('/login');
+  };
+
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return '无效日期';
+      }
+      return date.toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    } catch (error) {
+      console.error('日期解析错误:', error, dateString);
+      return '无效日期';
+    }
   };
 
   return (
@@ -138,11 +203,47 @@ const Dashboard: React.FC = () => {
             CSV 数据管理
           </Typography>
           <Typography sx={{ mr: 2 }}>
-            欢迎, {user?.username}
+            欢迎, {user?.username} {user?.isAdmin ? '(管理员)' : '(普通用户)'}
           </Typography>
-          <Button color="inherit" onClick={handleLogout}>
-            退出登录
-          </Button>
+          <IconButton
+            size="large"
+            aria-label="account of current user"
+            aria-controls="menu-appbar"
+            aria-haspopup="true"
+            onClick={handleMenuOpen}
+            color="inherit"
+          >
+            <AccountCircleIcon />
+          </IconButton>
+          <Menu
+            id="menu-appbar"
+            anchorEl={anchorEl}
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+          >
+            <MenuItem onClick={handleProfile}>
+              <AccountCircleIcon sx={{ mr: 1 }} />
+              个人资料
+            </MenuItem>
+            {user?.isAdmin && (
+              <MenuItem onClick={handleUserManagement}>
+                <PeopleIcon sx={{ mr: 1 }} />
+                用户管理
+              </MenuItem>
+            )}
+            <MenuItem onClick={handleLogout}>
+              退出登录
+            </MenuItem>
+          </Menu>
         </Toolbar>
       </AppBar>
 
@@ -216,17 +317,27 @@ const Dashboard: React.FC = () => {
                     key={file.id} 
                     disablePadding
                     secondaryAction={
-                      <Checkbox
-                        edge="end"
-                        checked={selectedFiles.includes(file.id)}
-                        onChange={() => handleSelectFile(file.id)}
-                      />
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <IconButton
+                          edge="end"
+                          aria-label="delete"
+                          onClick={() => handleSingleDelete(file.id, file.original_name)}
+                          sx={{ mr: 1 }}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                        <Checkbox
+                          edge="end"
+                          checked={selectedFiles.includes(file.id)}
+                          onChange={() => handleSelectFile(file.id)}
+                        />
+                      </Box>
                     }
                   >
                     <ListItemButton onClick={(e) => handleFileClick(file.id, e)}>
                       <ListItemText
                         primary={file.original_name}
-                        secondary={`${new Date(file.upload_date + 'Z').toLocaleString()} | ${file.row_count?.toLocaleString() || '0'} 行`}
+                        secondary={`${formatDate(file.upload_date)} | ${file.row_count?.toLocaleString() || '0'} 行`}
                       />
                     </ListItemButton>
                   </ListItem>

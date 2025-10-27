@@ -4,6 +4,8 @@ import axios from 'axios';
 interface User {
   id: number;
   username: string;
+  createdAt?: string;
+  isAdmin?: boolean;
 }
 
 interface AuthContextType {
@@ -38,12 +40,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const response = await axios.post('/api/auth/login', { username, password });
     const { token: newToken, user: newUser } = response.data;
     
+    // 确保isAdmin字段被正确设置
+    const userWithAdmin = {
+      ...newUser,
+      isAdmin: Boolean(newUser.isAdmin)
+    };
+    
     setToken(newToken);
-    setUser(newUser);
+    setUser(userWithAdmin);
     
     // 保存到localStorage
     localStorage.setItem('token', newToken);
-    localStorage.setItem('user', JSON.stringify(newUser));
+    localStorage.setItem('user', JSON.stringify(userWithAdmin));
     
     // 设置axios默认header
     axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;

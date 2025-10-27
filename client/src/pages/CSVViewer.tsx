@@ -200,7 +200,7 @@ const CSVViewer: React.FC = () => {
               <Box>
                 <Typography variant="h5">{csvData.file.name}</Typography>
                 <Typography variant="body2" color="text.secondary">
-                  上传时间: {new Date(csvData.file.uploadDate + 'Z').toLocaleString()}
+                  上传时间: {new Date(csvData.file.uploadDate).toLocaleString()}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   总记录数: {csvData.file.totalRows?.toLocaleString() || csvData.pagination.totalRows.toLocaleString()} 条

@@ -23,6 +23,8 @@ server/.env.production
 *.sqlite3
 server/data/*.db
 server/data/*.sqlite
+server/data/*.jsonl
+server/data/*.json
 
 # 上传文件
 server/uploads/*
@@ -98,3 +100,4 @@ out/
 .nuxt/
 .vuepress/dist
 .serverless/
+*.sv

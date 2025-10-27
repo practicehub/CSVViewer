@@ -8,6 +8,8 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import CSVViewer from './pages/CSVViewer';
 import CSVDetailView from './pages/CSVDetailView';
+import UserProfile from './pages/UserProfile';
+import UserManagement from './pages/UserManagement';
 
 const theme = createTheme({
   palette: {
@@ -70,6 +72,22 @@ function AppRoutes() {
         element={
           <PrivateRoute>
             <CSVDetailView />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <PrivateRoute>
+            <UserProfile />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/user-management"
+        element={
+          <PrivateRoute>
+            <UserManagement />
           </PrivateRoute>
         }
       />

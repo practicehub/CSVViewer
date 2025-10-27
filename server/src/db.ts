@@ -72,7 +72,13 @@ export async function initDatabase() {
 export function saveDatabase() {
   if (db) {
     const data = db.export();
-    fs.writeFileSync(dbPath, data);
+    // 分块写入大文件以避免超出Node.js限制
+    const chunkSize = 100 * 1024 * 1024; // 100MB chunks
+    for (let i = 0; i < data.length; i += chunkSize) {
+      const chunk = data.slice(i, i + chunkSize);
+      const flag = i === 0 ? 'w' : 'a';
+      fs.writeFileSync(dbPath, chunk, { flag });
+    }
   }
 }
 
