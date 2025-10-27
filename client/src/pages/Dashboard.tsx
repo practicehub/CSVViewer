@@ -17,6 +17,7 @@ import {
   Checkbox,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import PeopleIcon from '@mui/icons-material/People';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 
@@ -137,6 +138,14 @@ const Dashboard: React.FC = () => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             CSV 数据管理
           </Typography>
+          <Button 
+            color="inherit" 
+            startIcon={<PeopleIcon />}
+            onClick={() => navigate('/users')}
+            sx={{ mr: 2 }}
+          >
+            用户管理
+          </Button>
           <Typography sx={{ mr: 2 }}>
             欢迎, {user?.username}
           </Typography>
