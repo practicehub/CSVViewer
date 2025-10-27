@@ -7,7 +7,7 @@ import csvRouter from './routes/csv';
 import usersRouter from './routes/users';
 
 const app = express();
-const port = parseInt(process.env.PORT || '4000', 10);
+const port = parseInt(process.env.PORT || '8089', 10);
 
 app.use(cors());
 app.use(express.json());

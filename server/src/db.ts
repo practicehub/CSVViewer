@@ -64,6 +64,15 @@ export async function initDatabase() {
   db.run(`CREATE INDEX IF NOT EXISTS idx_csv_data_row_number ON csv_data(file_id, row_number)`);
   db.run(`CREATE INDEX IF NOT EXISTS idx_csv_data_header ON csv_data(file_id, is_header)`);
 
+  // 创建默认管理员用户（如果不存在）
+  const adminUser = get('SELECT * FROM users WHERE username = ?', ['admin']);
+  if (!adminUser) {
+    const bcrypt = require('bcrypt');
+    const hashedPassword = bcrypt.hashSync('password', 10);
+    run('INSERT INTO users (username, password) VALUES (?, ?)', ['admin', hashedPassword]);
+    console.log('Default admin user created: username=admin, password=password');
+  }
+
   // 保存数据库到文件
   saveDatabase();
 }

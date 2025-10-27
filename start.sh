@@ -53,9 +53,9 @@ echo
 echo "========================================"
 echo "Access URLs:"
 echo "========================================"
-echo "Local:            http://localhost:4000"
+echo "Local:            http://localhost:8089"
 if [ -n "$LOCAL_IP" ]; then
-    echo "Network:          http://$LOCAL_IP:4000"
+    echo "Network:          http://$LOCAL_IP:8089"
     echo
     echo "Share this URL with devices on the same network!"
 fi
